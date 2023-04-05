@@ -11,10 +11,10 @@ spring:
       prefix: /WEB-INF/view/
       suffix: .jsp 
   datasource:
-    url: jdbc:h2:mem:test;MODE=MySQL
+    url: jdbc:h2:mem:testdb;MODE=MySQL
     driver-class-name: org.h2.Driver
-    username: tenco
-    password: 
+    username: root
+    password: asd12345
 #  sql:
 #    init:
 #      schema-locations:
