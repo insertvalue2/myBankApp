@@ -1,5 +1,8 @@
+<%@page import="com.tenco.bank.handler.exception.CustomRestfullException"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/view/layout/header.jsp"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import ="com.tenco.bank.repository.model.user.User" %>
 <div class="col-sm-8">
 	<h2>계좌 목록(인증)</h2>
 	<h6>어서오세요 환영합니다</h6>

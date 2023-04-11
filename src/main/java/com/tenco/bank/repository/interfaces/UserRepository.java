@@ -3,6 +3,7 @@ package com.tenco.bank.repository.interfaces;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
+import com.tenco.bank.dto.SignInDto;
 import com.tenco.bank.dto.SignUpDto;
 import com.tenco.bank.repository.model.user.User;
 
@@ -14,5 +15,5 @@ public interface UserRepository {
 	public int deleteById(int id);
 	public User findById(); 
 	public List<User> findAll(); 
-
+	public User findByUsernameAndPassword(SignInDto signInDto);
 }
