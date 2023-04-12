@@ -26,4 +26,9 @@
 		{balance}, user_id= #{userId} where id = #{id}
 	</update>
 	
+	<!-- 유저ID로 계좌 목록 검색 기능 추가  -->
+	<select id="findByUserId" resultType="com.tenco.bank.repository.model.account.Account" >
+		select * from account_tb where user_id = #{principalId}   
+	</select>
+	
 </mapper>

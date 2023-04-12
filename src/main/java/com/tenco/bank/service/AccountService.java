@@ -1,5 +1,7 @@
 package com.tenco.bank.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,13 @@ public class AccountService {
 		if(resultRow != 1) {
 			throw new CustomRestfullException("계좌 생성 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	// SELECT 쿼리가 간단한 경우에는 @Transactional을 사용하지 않아도 되지만, 복잡한 경우에는 사용하는 것이 좋습니다.
+	@Transactional  
+	public List<Account> findUserAccount(Integer principalId) {
+		List<Account> accountEntityList = accountRepository.findByUserId(principalId);
+		return accountEntityList;
 	}
 	
 }

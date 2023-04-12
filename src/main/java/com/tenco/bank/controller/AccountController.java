@@ -1,5 +1,7 @@
 package com.tenco.bank.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.tenco.bank.dto.AccountSaveFormDto;
 import com.tenco.bank.handler.exception.UnauthenticatedUser;
+import com.tenco.bank.repository.model.account.Account;
 import com.tenco.bank.repository.model.user.User;
 import com.tenco.bank.service.AccountService;
 
@@ -25,8 +28,9 @@ public class AccountController {
 	@Autowired
 	private AccountService accountService;
 	
+	// >> 코드 수정 
 	// 계좌 목록 페이지
-	@GetMapping("/list")
+	@GetMapping({"/list", "/"})
 	public String list(Model model) {
 		
 		// 세션 메모리에서 확인 : DB 접근 아님
@@ -38,13 +42,18 @@ public class AccountController {
 		// Model 객체 또는 ModelAndView 객체를 사용한다. 
 		// 선택은 프로젝트 기술 및 개발자 선호 사항
 		model.addAttribute(principal);
+		List<Account> accountList = accountService.findUserAccount(principal.getId());
+		if(accountList.isEmpty()) {
+			model.addAttribute("accountList", null);
+		} else {
+			model.addAttribute("accountList", accountList);
+		}
 		return "/account/list";
 	}
 
 	// 출금페이지
 	@GetMapping("/withdraw-form")
 	public String withdrawForm() {
-		
 		return "/account/withdrawForm";
 	}
 
