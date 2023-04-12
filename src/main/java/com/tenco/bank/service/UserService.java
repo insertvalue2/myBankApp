@@ -38,7 +38,5 @@ public class UserService {
 		System.out.println(principal);
 		return principal;
 	}
-	
 }
-
 

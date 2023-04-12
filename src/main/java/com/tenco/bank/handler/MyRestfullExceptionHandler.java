@@ -2,8 +2,8 @@ package com.tenco.bank.handler;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.tenco.bank.handler.exception.CustomRestfullException;
+import com.tenco.bank.handler.exception.UnauthenticatedUser;
 
 @RestControllerAdvice // IoC 대상 + aop 
 public class MyRestfullExceptionHandler {
@@ -23,4 +23,17 @@ public class MyRestfullExceptionHandler {
 		sb.append("</script>");
 		return sb.toString();
 	}
+	
+	// >> 코드 추가 
+	// 미인증시 로그인 페이지로 이동 처리
+	@ExceptionHandler(UnauthenticatedUser.class)
+	public String unauthenticatedUser(UnauthenticatedUser e) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<script>");
+		sb.append("alert('" + e.getMessage() + "');");
+		sb.append("location.href='/user/sign-in';");
+		sb.append("</script>");
+		return sb.toString();
+	}
+	
 }
