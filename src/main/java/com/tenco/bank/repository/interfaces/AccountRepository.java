@@ -15,4 +15,7 @@ public interface AccountRepository {
 	public Account findById(int id);
 	
 	public List<Account> findByUserId(Integer principalId);
+	// 코드 추가 
+	public Account findByNumber(String number); // 계좌 번호로 계좌 존재 여부 확인 
+	
 }

@@ -27,5 +27,5 @@ CREATE TABLE history_tb(
 	d_balance bigint COMMENT '입금 계좌 잔액',
 	w_account_id int COMMENT '출금 계좌 ID',
 	d_account_id int COMMENT '입금 계좌 ID',
-	created_at timestamp not null
+	created_at timestamp not null default now()
 );

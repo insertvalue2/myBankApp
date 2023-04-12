@@ -3,32 +3,42 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
 	namespace="com.tenco.bank.repository.interfaces.AccountRepository">
-	<select id="findAll" resultType="com.tenco.bank.repository.model.account.Account">
+	<select id="findAll"
+		resultType="com.tenco.bank.repository.model.account.Account">
 		select * from account_tb
 	</select>
-	
+
 	<select id="findById"
 		resultType="com.tenco.bank.repository.model.account.Account">
 		select * from account_tb where id = #{id}
 	</select>
-	
+
 	<insert id="insert">
-		insert into account_tb (number, password, balance, user_id, created_at)
-		values(#{number}, #{password}, #{balance}, #{userId}, now())
+		insert into account_tb (number, password, balance,
+		user_id, created_at)
+		values(#{number}, #{password}, #{balance},
+		#{userId}, now())
 	</insert>
-	
+
 	<delete id="deleteById">
 		delete from account_tb where id = #{id}
 	</delete>
-	
+
 	<update id="updateById">
-		update account_tb set number= #{number}, password= #{password}, balance= #
-		{balance}, user_id= #{userId} where id = #{id}
+		update account_tb set number= #{number}, password = #{password},
+		balance= #{balance}, user_id= #{userId} where id = #{id}
 	</update>
-	
-	<!-- 유저ID로 계좌 목록 검색 기능 추가  -->
-	<select id="findByUserId" resultType="com.tenco.bank.repository.model.account.Account" >
-		select * from account_tb where user_id = #{principalId}   
+
+	<!-- 유저ID로 계좌 목록 검색 기능 추가 -->
+	<select id="findByUserId"
+		resultType="com.tenco.bank.repository.model.account.Account">
+		select *
+		from account_tb where user_id = #{principalId}
 	</select>
-	
+
+	<!-- 계좌번호로 계좌 존재 여부 확인 -->
+	<select id="findByNumber" resultType="com.tenco.bank.repository.model.account.Account">
+			select * from account_tb where number = #{number}
+	</select>
+
 </mapper>

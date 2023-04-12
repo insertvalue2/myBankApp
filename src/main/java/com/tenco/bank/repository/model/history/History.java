@@ -2,11 +2,10 @@ package com.tenco.bank.repository.model.history;
 
 import java.sql.Timestamp;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+
+@Data
 public class History {
     private Integer id;
     private Long amount;
