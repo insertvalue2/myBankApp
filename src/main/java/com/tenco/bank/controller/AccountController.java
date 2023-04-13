@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.tenco.bank.dto.AccountDepositFormDto;
 import com.tenco.bank.dto.AccountSaveFormDto;
 import com.tenco.bank.dto.AccountWithdrawFormDto;
 import com.tenco.bank.handler.exception.CustomRestfullException;
@@ -30,7 +31,6 @@ public class AccountController {
 	@Autowired
 	private AccountService accountService;
 
-	// >> 코드 수정
 	// 계좌 목록 페이지
 	@GetMapping({ "/list", "/" })
 	public String list(Model model) {
@@ -86,9 +86,7 @@ public class AccountController {
 			throw new CustomRestfullException("계좌비밀번호를 입력해주세요", HttpStatus.BAD_REQUEST);
 		}
 		
-		// todo 서비스 호출 예정 
 		accountService.withdrawMoney(accountWithdrawFormDto);
-		
 		return "redirect:/account/list";
 	}
 
@@ -96,6 +94,30 @@ public class AccountController {
 	@GetMapping("/diposit-form")
 	public String dipositForm() {
 		return "/account/dipositForm";
+	}
+	
+	/**
+	 * 입금 처리 
+	 * @param accountDepositFormDto
+	 * @return / 
+	 */
+	@PostMapping("/diposit-proc")
+	public String dipositProc(AccountDepositFormDto accountDepositFormDto) {
+		if(accountDepositFormDto.getAmount() == null) {
+			throw new CustomRestfullException("금액을 입력해주세요", HttpStatus.BAD_REQUEST);
+		}
+		
+		if(accountDepositFormDto.getAmount().longValue() <= 0) {
+			throw new CustomRestfullException("입금금액이 0원 이하일 수 없습니다", HttpStatus.BAD_REQUEST);
+		}
+		
+		if(accountDepositFormDto.getDAccountNumber() == null || accountDepositFormDto.getDAccountNumber().isEmpty() ) {
+			throw new CustomRestfullException("계좌번호를 입력해주세요", HttpStatus.BAD_REQUEST);
+		}
+		
+		accountService.diposit(accountDepositFormDto);
+		
+		return "redirect:/account/list";
 	}
 
 	// 이체페이지

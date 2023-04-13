@@ -14,10 +14,8 @@
 	</select>
 
 	<insert id="insert">
-		insert into account_tb (number, password, balance,
-		user_id, created_at)
-		values(#{number}, #{password}, #{balance},
-		#{userId}, now())
+		insert into account_tb (number, password, balance, user_id, created_at)
+		values(#{number}, #{password}, #{balance}, #{userId}, now())
 	</insert>
 
 	<delete id="deleteById">
@@ -25,8 +23,8 @@
 	</delete>
 
 	<update id="updateById">
-		update account_tb set number= #{number}, password = #{password},
-		balance= #{balance}, user_id= #{userId} where id = #{id}
+		update account_tb set number = #{number}, password = #{password},
+		balance = #{balance}, user_id = #{userId} where id = #{id}
 	</update>
 
 	<!-- 유저ID로 계좌 목록 검색 기능 추가 -->

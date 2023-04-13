@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tenco.bank.dto.AccountDepositFormDto;
 import com.tenco.bank.dto.AccountSaveFormDto;
 import com.tenco.bank.dto.AccountWithdrawFormDto;
 import com.tenco.bank.handler.exception.CustomRestfullException;
@@ -87,4 +88,38 @@ public class AccountService {
 		return accountEntity.getId(); 
 	}
 	
+	/**
+	 * 1. 트랜 잭션 처리
+	 * 2. 계좌 존재 여부 확인   
+	 * 3. 입금 처리 
+	 * 4. 히스트로 등록 
+	 * @param accountDepositFormDto
+	 */
+	@Transactional // 1
+	public void diposit(AccountDepositFormDto accountDepositFormDto) {
+		Account accountEntity = accountRepository.findByNumber(accountDepositFormDto.getDAccountNumber());
+		// 2
+		if(accountEntity == null) {
+			throw new CustomRestfullException("계좌가 존재 하지 않습니다", HttpStatus.BAD_REQUEST);
+		}
+		// 3 
+		// AccountEntity - 모델 클래스에
+		// 현재 잔액에 + 주입 받은 금액 = 즉, 모델 상태 변경처리를 해야 함
+		accountEntity.deposit(accountDepositFormDto.getAmount());
+		accountRepository.updateById(accountEntity); // 입금 
+		
+		// 4 
+		History history = new History(); 
+		history.setAmount(accountDepositFormDto.getAmount());
+		history.setWBalance(null);
+		history.setDAccountId(accountEntity.getId());
+		history.setWBalance(null);
+		history.setDBalance(accountEntity.getBalance());
+		
+		historyRepository.insert(history); // 히스토리 등록
+	}
+	
 }
+
+
+
