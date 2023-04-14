@@ -5,7 +5,7 @@
 	<h6>어서오세요 환영합니다</h6>
 
 	<div class="align-items-center justify-content-center bg-light p-md-5 h-75">
-		<form action="/user/signUp" method="post">
+		<form action="/account/transfer-proc" method="post">
 			<div class="form-group">
 				<label for="amount">이체 금액:</label>
 				<input type="text" class="form-control" placeholder="Enter 이체금액" id="amount" name="amount">
