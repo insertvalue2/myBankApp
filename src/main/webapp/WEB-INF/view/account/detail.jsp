@@ -1,29 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/view/layout/header.jsp"%>
-<style>
+<%@ page import="com.tenco.bank.utils.TimestampUtil"%>
 
+
+<style>
 .user-box {
 	border: 1px solid black;
 	padding: 10px;
 }
+
 .table>thead {
 	font-size: 12px;
 	font-weight: bold;
+	text-align: left;
+}
+
+.table>tbody {
+	font-size: 12px;
+	text-align: left;
 }
 </style>
-<div class="col-sm-8">
+<!-- flex 속성을 사용하고 싶다면 flex container 로 만들기 (d-flex)  -->
+<div class="col-sm-8 d-flex flex-column ">
 	<h2>계좌 상세보기(인증)</h2>
 	<h6>어서오세요 환영합니다</h6>
-
-	<div class="align-items-center justify-content-center bg-light p-md-3 h-75">
+	<div class="bg-light p-md-3 flex-grow-1"">
 		<div class="user-box">
-			fullname님 계좌<br /> 계좌번호 : 1111<br /> 잔액 : 1000원
+			${principal.username}님 계좌<br /> 계좌번호 : ${account.number}<br /> 잔액 : ${account.balance}원
 		</div>
 		<br>
 		<div>
-			<a href="#">전체</a> <a href="#">입금</a> <a href="#">출금</a>
+			<a href="/account/detail/${account.id}?type=all">전체</a> <a href="/account/detail/${account.id}?type=deposit">입금</a> <a href="/account/detail/${account.id}?type=withdraw">출금</a>
 		</div>
-		<br>
 		<table class="table">
 			<thead>
 				<tr>
@@ -35,13 +43,15 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td>2023.04.10</td>
-					<td>ATM</td>
-					<td>1111계좌</td>
-					<td>1000원</td>
-					<td>2000원</td>
-				</tr>
+				<c:forEach var="historyDto" items="${historyList}">
+					<tr>
+						<td>${historyDto.formatCreatedAt()}</td>
+						<td>${historyDto.sender}</td>
+						<td>${historyDto.receiver}</td>
+						<td>${historyDto.amount}</td>
+						<td>${historyDto.formatBalance()}</td>
+					</tr>
+				</c:forEach>
 			</tbody>
 		</table>
 	</div>

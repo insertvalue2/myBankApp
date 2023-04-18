@@ -3,19 +3,23 @@ package com.tenco.bank.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tenco.bank.dto.AccountDepositFormDto;
 import com.tenco.bank.dto.AccountSaveFormDto;
 import com.tenco.bank.dto.AccountTransferFormDto;
 import com.tenco.bank.dto.AccountWithdrawFormDto;
+import com.tenco.bank.dto.response.HistoryResponseDto;
 import com.tenco.bank.handler.exception.CustomRestfullException;
 import com.tenco.bank.handler.exception.UnauthenticatedUser;
 import com.tenco.bank.repository.model.account.Account;
@@ -32,6 +36,8 @@ public class AccountController {
 
 	@Autowired
 	private AccountService accountService;
+	
+	
 
 	// 계좌 목록 페이지
 	@GetMapping({ "/list", "/" })
@@ -143,7 +149,9 @@ public class AccountController {
 	@PostMapping("/transfer-proc")
 	public String transferProc(AccountTransferFormDto accountTransferFormDto) {
 		
-		if(session.getAttribute(Define.PRINCIPAL) == null) {
+		User principal = (User)session.getAttribute(Define.PRINCIPAL);
+		
+		if(principal == null) {
 			throw new CustomRestfullException("로그인 먼저 해주세요", HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -171,19 +179,11 @@ public class AccountController {
 		if(accountTransferFormDto.getAmount() <= 0){
 			throw new CustomRestfullException("이체 금액이 0원 이하일 수 없습니다.", HttpStatus.BAD_REQUEST);
 		}
-		
-		// todo 코드 추가 예정
-		// 서비스 호출 
-		User principal = (User)session.getAttribute(Define.PRINCIPAL);
 		accountService.transfer(accountTransferFormDto, principal.getId());
-		return "/account/list";
+		return "redirect:/account/list";
 	}
 
-	// 계좌 상세보기 페이지
-	@GetMapping("/detail")
-	public String detail() {
-		return "/account/detail";
-	}
+	
 
 	// 계좌 생성 페이지 이동
 	// MIME TYPE
@@ -209,5 +209,30 @@ public class AccountController {
 		User principal = (User) session.getAttribute(Define.PRINCIPAL);
 		accountService.createAccount(accountSaveFormDto, principal.getId());
 		return "redirect:/account/list";
+	}
+	
+	// 계좌 상세보기 페이지 (1개 계좌)
+	// 정제된 데이터(검색)는 Query String 방식을 권장한다. 
+	// 주소 설계 : http://localhost:8080/detail/100?type=[all,deposity,withdraw]
+	@GetMapping("/detail/{accountId}")
+	public String detailPage(@PathVariable int accountId, 
+			@RequestParam(name = "type", defaultValue = "all") String type,
+			Model model) {
+		//User principal = (User)session.getAttribute(Define.PRINCIPAL);
+		// 인증 확인 
+		if(session.getAttribute(Define.PRINCIPAL) == null) {
+			throw new UnauthenticatedUser("로그인 먼저 해주세요", HttpStatus.UNAUTHORIZED);
+		}
+		
+		// 데이터 내려 주기 Model or ModelAndView 
+		// 1. 사용자 이름은 세션에 존재 함
+		// 2. 계좌 정보 (계좌번호, 현재 잔액) Account
+		// 3. 거내내역 
+		Account account = accountService.readAccountById(accountId);
+		List<HistoryResponseDto> historyList = accountService.readHistoryByAccount(accountId, type);
+		model.addAttribute("account", account);
+		model.addAttribute("historyList", historyList);
+		
+		return "/account/detail";
 	}
 }

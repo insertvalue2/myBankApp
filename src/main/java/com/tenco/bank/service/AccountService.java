@@ -11,6 +11,7 @@ import com.tenco.bank.dto.AccountDepositFormDto;
 import com.tenco.bank.dto.AccountSaveFormDto;
 import com.tenco.bank.dto.AccountTransferFormDto;
 import com.tenco.bank.dto.AccountWithdrawFormDto;
+import com.tenco.bank.dto.response.HistoryResponseDto;
 import com.tenco.bank.handler.exception.CustomRestfullException;
 import com.tenco.bank.repository.interfaces.AccountRepository;
 import com.tenco.bank.repository.interfaces.HistoryRepository;
@@ -130,16 +131,13 @@ public class AccountService {
 	 * @return 계좌 상세 보기 화면 (계좌 ID)
 	 */
 	@Transactional
-	public int transfer(AccountTransferFormDto accountTransferFormDto, int principalId) {
+	public void transfer(AccountTransferFormDto accountTransferFormDto, int principalId) {
 		Account withdrawAccountEntity = accountRepository.findByNumber(accountTransferFormDto.getWAccountNumber());
 		// 1
 		if (withdrawAccountEntity == null) {
 			throw new CustomRestfullException("출금 계좌번호를 확인 해주세요", HttpStatus.BAD_REQUEST);
 		}
-
-		// 변경 되기전 출금 계좌 잔액 임시 저장(거래내역에 저장 예정)
-		Long previouseWithdrawBalance = withdrawAccountEntity.getBalance();
-
+	
 		//2  코드 수정 
 		withdrawAccountEntity.checkPassword(accountTransferFormDto.getWAccountPassword());
 		
@@ -162,8 +160,6 @@ public class AccountService {
 
 		// 7
 		Account depositAccountEntity = accountRepository.findByNumber(accountTransferFormDto.getDAccountNumber());
-		// 변경 되기전 이체 할 계좌 잔액 임시 저장(거래내역에 저장 예정)
-		Long previouseDepositBalance = depositAccountEntity.getBalance();
 
 		depositAccountEntity.setBalance(depositAccountEntity.getBalance() + accountTransferFormDto.getAmount());
 		// 이체 계좌 잔액 업데이트 처리
@@ -175,12 +171,37 @@ public class AccountService {
 		history.setWAccountId(withdrawAccountEntity.getId());
 		history.setDAccountId(depositAccountEntity.getId());
 		// 이체 전 출금,입금 계좌 잔액 기록   
-		history.setWBalance(previouseWithdrawBalance);
-		history.setDBalance(previouseDepositBalance);
-		historyRepository.insert(history);
-		
-		// 이체한 계좌 상세보기로 화면 이동  
-		return withdrawAccountEntity.getId();
+		history.setWBalance(withdrawAccountEntity.getBalance());
+		history.setDBalance(depositAccountEntity.getBalance());
+		int resultRow = historyRepository.insert(history);
+		if(resultRow != 1) {
+			throw new CustomRestfullException("잘못된 방식 입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	/**
+	 * 계좌 정보 찾기 
+	 * @param accountId  
+	 * @return
+	 */
+	public Account readAccountById(int accountId) {
+		Account accountEntity = accountRepository.findById(accountId);
+		if(accountEntity == null) {
+			throw new CustomRestfullException("해당 계좌를 찾을 수 없습니다", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return accountEntity; 
+	}
+	
+	/**
+	 * 1개 계좌에 대한 거래 (동적쿼리) 
+	 * @param id (계좌 id) 
+	 * @param type (all - 거래내역 전체, deposit - 입금 내역, withdraw - 출금 내역)
+	 * @return 거래 내역 목록 
+	 */
+	public List<HistoryResponseDto> readHistoryByAccount(Integer id, String type) {
+		// 동적 쿼리 실행 -> 동적 결과를 받을 DTO 사용해 보기 
+		List<HistoryResponseDto>  historyList = historyRepository.findByIdAndDynamicType(id, type);
+		return historyList;
 	}
 
 }

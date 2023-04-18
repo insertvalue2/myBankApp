@@ -18,8 +18,9 @@
 					</thead>
 					<tbody>
 						<c:forEach var="userAccount" items="${accountList}">
-							<tr>
-								<td>${userAccount.number}</td>
+							<tr> 
+								<%-- 코드 추가  --%>
+								<td><a href="/account/detail/${userAccount.id}">${userAccount.number}</a></td>
 								<td>${userAccount.balance}</td>
 							</tr>
 						</c:forEach>
