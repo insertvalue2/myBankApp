@@ -37,20 +37,10 @@ public class AccountController {
 	@Autowired
 	private AccountService accountService;
 	
-	
-
 	// 계좌 목록 페이지
 	@GetMapping({ "/list", "/" })
 	public String list(Model model) {
-
-		// 세션 메모리에서 확인 : DB 접근 아님
-		if (session.getAttribute(Define.PRINCIPAL) == null) {
-			return "redirect:/user/sign-in";
-		}
 		User principal = (User) session.getAttribute(Define.PRINCIPAL);
-		// view 쪽으로 값을 내려 주는 기술
-		// Model 객체 또는 ModelAndView 객체를 사용한다.
-		// 선택은 프로젝트 기술 및 개발자 선호 사항
 		model.addAttribute(principal);
 		List<Account> accountList = accountService.findUserAccount(principal.getId());
 		if (accountList.isEmpty()) {
@@ -131,9 +121,6 @@ public class AccountController {
 	// 이체 페이지
 	@GetMapping("/transfer-form")
 	public String transferForm() {
-		if(session.getAttribute(Define.PRINCIPAL) == null) {
-			return "redirect:/user/sign-in";
-		}
 		return "/account/transferForm";
 	}
 	
@@ -148,13 +135,7 @@ public class AccountController {
 	 */
 	@PostMapping("/transfer-proc")
 	public String transferProc(AccountTransferFormDto accountTransferFormDto) {
-		
 		User principal = (User)session.getAttribute(Define.PRINCIPAL);
-		
-		if(principal == null) {
-			throw new CustomRestfullException("로그인 먼저 해주세요", HttpStatus.UNAUTHORIZED);
-		}
-		
 		// 유효성 검사 
 		//1. 출금계좌번호 입력 여부 확인
 		if(accountTransferFormDto.getWAccountNumber() == null 
@@ -186,14 +167,8 @@ public class AccountController {
 	
 
 	// 계좌 생성 페이지 이동
-	// MIME TYPE
 	@GetMapping("/save-form")
 	public String saveForm(AccountSaveFormDto accountSaveFormDto) {
-		// 로그인 되어 있지 않으면 signIn 페이지로 이동 처리
-		if (session.getAttribute(Define.PRINCIPAL) == null) {
-			throw new UnauthenticatedUser("인증되지 않은 사용자 입니다.", HttpStatus.UNAUTHORIZED);
-		}
-
 		return "/account/saveForm";
 	}
 
@@ -202,10 +177,7 @@ public class AccountController {
 	 */
 	@PostMapping("/save-form")
 	public String saveFormProc(AccountSaveFormDto accountSaveFormDto) {
-		if (session.getAttribute(Define.PRINCIPAL) == null) {
-			throw new UnauthenticatedUser("인증되지 않은 사용자 입니다.", HttpStatus.UNAUTHORIZED);
-		}
-		// AccountSaveFormDto 유효성 검사 생략.. 계좌 생성 규칙 고민
+
 		User principal = (User) session.getAttribute(Define.PRINCIPAL);
 		accountService.createAccount(accountSaveFormDto, principal.getId());
 		return "redirect:/account/list";
@@ -218,16 +190,6 @@ public class AccountController {
 	public String detailPage(@PathVariable int accountId, 
 			@RequestParam(name = "type", defaultValue = "all") String type,
 			Model model) {
-		//User principal = (User)session.getAttribute(Define.PRINCIPAL);
-		// 인증 확인 
-		if(session.getAttribute(Define.PRINCIPAL) == null) {
-			throw new UnauthenticatedUser("로그인 먼저 해주세요", HttpStatus.UNAUTHORIZED);
-		}
-		
-		// 데이터 내려 주기 Model or ModelAndView 
-		// 1. 사용자 이름은 세션에 존재 함
-		// 2. 계좌 정보 (계좌번호, 현재 잔액) Account
-		// 3. 거내내역 
 		Account account = accountService.readAccountById(accountId);
 		List<HistoryResponseDto> historyList = accountService.readHistoryByAccount(accountId, type);
 		model.addAttribute("account", account);
